@@ -21,6 +21,9 @@ arg_types = {'bool': ['boolean'],
              'float': ['linear', 'float', 'angle'],
              'str': ['string', 'name', 'script', 'timerange']}
 
+# toDo: some flags are weird I will check them
+weird_flags = ['time', 'angle', 'timerange']
+
 auto_complete = ''
 for command_file in os.listdir(commands_path):
     command = command_file.replace('.html', '')
@@ -45,20 +48,24 @@ for command_file in os.listdir(commands_path):
 
             # toDo: I need to get the shorter version
             arg = arg_and_type[0]
+            arg_type = None
 
             if '[' in arg_and_type[1] and ']' in arg_and_type[1]:
                 arg_type = 'list'
             else:
-                arg_type = None
+                # toDo: remove this check once all is solved
+                if arg_and_type[1] in weird_flags:
+                    print('command: {}, flag={}, type={}'.format(command, arg, arg_and_type[1]))
+
                 for key, values in arg_types.items():
                     if arg_and_type[1] in values:
                         arg_type = key
 
-                if not arg_type:
-                    # toDo: try to solve problem knowing the flags type
-                    print command
-                    print arg
-                    print arg_and_type[1]
-                    raise Exception
+            if not arg_type:
+                # toDo: try to solve problem knowing the flags type
+                print command
+                print arg
+                print arg_and_type[1]
+                raise Exception
 
             arguments_types.append([arg, arg_type])
