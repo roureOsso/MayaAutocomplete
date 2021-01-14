@@ -17,12 +17,10 @@ if 'CommandsPython' not in os.listdir(doc_path):
 commands_path = path.join(doc_path, 'CommandsPython')
 
 arg_types = {'bool': ['boolean'],
-             'int': ['uint', 'int', 'time'],
-             'float': ['linear', 'float', 'angle'],
-             'str': ['string', 'name', 'script', 'timerange']}
-
-# toDo: some flags are weird I will check them
-weird_flags = ['time', 'angle', 'timerange']
+             'int': ['uint', 'int', 'int64'],
+             'float': ['linear', 'float', 'angle', 'time'],
+             'str': ['string', 'name', 'script'],
+             'tuple': ['floatrange', 'timerange']}
 
 auto_complete = ''
 for command_file in os.listdir(commands_path):
@@ -40,32 +38,28 @@ for command_file in os.listdir(commands_path):
         synopsis_str = doc[start:end]
 
         arguments_types = list()
-        for arguments in synopsis_str.split('],'):
+        for arguments in re.findall('\[<(.*?)>]', synopsis_str):
             # Get all occurrences between ">" and "<", these will be the flags and its types
             arg_and_type = re.findall('>(.*?)<', arguments)[::2]
             if not arg_and_type:
                 continue
 
-            # toDo: I need to get the shorter version
             arg = arg_and_type[0]
+            short_arg = re.findall('<code><b>{}</b>\(<b>(.*?)</b>\)'.format(arg), doc)[0]
             arg_type = None
 
+            # If an argument has '[' or ']' in it, it is a list type
             if '[' in arg_and_type[1] and ']' in arg_and_type[1]:
                 arg_type = 'list'
-            else:
-                # toDo: remove this check once all is solved
-                if arg_and_type[1] in weird_flags:
-                    print('command: {}, flag={}, type={}'.format(command, arg, arg_and_type[1]))
 
+            # If it is not a list, find the correct type in the types table
+            else:
                 for key, values in arg_types.items():
                     if arg_and_type[1] in values:
                         arg_type = key
+                        break
 
-            if not arg_type:
-                # toDo: try to solve problem knowing the flags type
-                print command
-                print arg
-                print arg_and_type[1]
-                raise Exception
+            if not arg_and_type:
+                raise RuntimeError('The arg type is not a list and is not defined in the table, contact who did this')
 
-            arguments_types.append([arg, arg_type])
+            arguments_types.extend([[arg, arg_type], [short_arg, arg_type]])
