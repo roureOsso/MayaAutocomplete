@@ -163,8 +163,8 @@ def run():
                     if short_arg and not short_arg == arg:
                         arguments_types.append('='.join([short_arg, arg_type]))
 
-                commands_file.write(
-                    "def {}({}*args, **kwargs):\n    pass\n\n".format(command, ', '.join(arguments_types)))
+                arguments_types.extend(['*args', '**kwargs'])
+                commands_file.write("def {}({}):\n    pass\n\n".format(command, ', '.join(arguments_types)))
 
     print('Command autocomplete file DONE!')
     print('INFO: It is recommended to open the __init__ file and reformat the code\n')
