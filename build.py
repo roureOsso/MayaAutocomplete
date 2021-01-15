@@ -50,34 +50,52 @@ def run():
         :return: str // documentation path
         """
         download_doc = u_input('Do you want to download the Maya documentation? Y/N:')
+
         if download_doc == 'N':
             documentation_path = u_input('Input the Maya documentation folder:')
         elif download_doc == 'Y':
             def get_maya_version():
+                """
+                Keep asking until a valid version is given.
+                :return: str // version asked
+                """
                 version = u_input('Maya documentation version to download:')
                 if version not in documentation_versions.keys():
                     available_versions = list(documentation_versions.keys())
                     available_versions.sort()
                     print('Documentation not listed for version - {} -\n'
-                          'Available versions -> {}'
-                          'NOTE: You can also download the files by your self.'.format(version, available_versions))
+                          'Available versions -> {}\n'
+                          'NOTE: You can also download the files by your self\n'.format(version, available_versions))
 
                     version = get_maya_version()
 
                 return version
 
             maya_version = get_maya_version()
-            print('INFO: Accept the download in your desired folder and wait for the download to finish')
+            print('\nINFO: Accept the download in your desired folder and wait for the download to finish')
             webbrowser.open(documentation_versions[maya_version])
 
-            zip_path = u_input('Zip path:')
+            def get_zip_path():
+                """
+                The user may fail entering the path, so if it does not exist just keep asking.
+                :return: str // zip file to unzip
+                """
+                zip_file = u_input('Zip path:')
+
+                if not path.exists(zip_file):
+                    print('ERROR: No such file or directory, try again\n')
+                    zip_file = get_zip_path()
+
+                return zip_file
+
+            zip_path = get_zip_path()
             documentation_path = path.join(path.split(zip_path)[0], 'mayaDoc' + maya_version)
 
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                 zip_ref.extractall(documentation_path)
 
         else:
-            print('Please set Y or N')
+            print('ERROR: Please set Y or N\n')
             documentation_path = get_user_info()
 
         return documentation_path
@@ -87,10 +105,10 @@ def run():
         raise RuntimeError('The specified folder does not contain "CommandsPython" folder')
 
     commands_path = path.join(doc_path, 'CommandsPython')
-    print('INFO: The -> __init__.py <- file is about to be written choose the correct directory or move it later')
+    print('\nINFO: The -> __init__.py <- file is about to be written choose the correct directory or move it later')
     init_path = u_input('Set the path were the __init__.py will be saved or overwrite:')
 
-    print('Writing commands...')
+    print('Writing commands...\n')
     with open(path.join(init_path, '__init__.py'), 'w+') as commands_file:
         for command_file in os.listdir(commands_path):
             command = command_file.replace('.html', '')
@@ -146,7 +164,33 @@ def run():
                     "def {}({}*args, **kwargs):\n    pass\n\n".format(command, ', '.join(arguments_types)))
 
     print('Command autocomplete file DONE!')
-    print('INFO: It is recommended to open the __init__ file and reformat the code')
+    print('INFO: It is recommended to open the __init__ file and reformat the code\n')
+
+    display_more_info = u_input('Need more info on how to use this __init__ file? Y/N:')
+    if display_more_info == 'Y':
+        print("""
+    1. Download the corresponding maya devkit.
+    2. Copy the __init__.py inside the marked directory:
+        devkitBase
+                  |
+                  devkit
+                        |
+                        other
+                             |
+                             pymel
+                                  |
+                                  extras
+                                        |
+                                        completion
+                                                  |
+                                                  py    <- Set this folder when setting the autoComplete in your IDE
+                                                    |
+                                                    maya
+                                                        |
+                                                        cmds  <- Replace the __init__.py here
+        """)
+
+    print("For further assistance rourexs@gmail.com")
 
 
 if __name__ == "__main__":
