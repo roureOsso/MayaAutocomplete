@@ -91,8 +91,11 @@ def run():
             zip_path = get_zip_path()
             documentation_path = path.join(path.split(zip_path)[0], 'mayaDoc' + maya_version)
 
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(documentation_path)
+            try:
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(documentation_path)
+            except:
+                print('WARNING: Zip decompression failed and continued, you may want to unzip it your self and retry')
 
         else:
             print('ERROR: Please set Y or N\n')
