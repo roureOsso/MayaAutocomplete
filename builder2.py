@@ -87,11 +87,11 @@ def run():
         raise RuntimeError('The specified folder does not contain "CommandsPython" folder')
 
     commands_path = path.join(doc_path, 'CommandsPython')
+    print('INFO: The -> __init__.py <- file is about to be written choose the correct directory or move it later')
+    init_path = u_input('Set the path were the __init__.py will be saved or overwrite:')
 
-    print('Witting commands!')
-
-    # toDo: set where the file must be saved and manage the output data
-    with open(r'C:\Users\roure\Downloads\__init__.py', 'w+') as commands_file:
+    print('Writing commands...')
+    with open(path.join(init_path, '__init__.py'), 'w+') as commands_file:
         for command_file in os.listdir(commands_path):
             command = command_file.replace('.html', '')
             file_path = path.join(commands_path, command_file)
