@@ -60,4 +60,3 @@ What to do with an autoCompelte `__init__.py` file:
 | 2017.1 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
 | 2017 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
 | 2016 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-
