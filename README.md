@@ -7,8 +7,7 @@ You can download an **"AutoComplete"** already _buit_ for you or build your own.
 **MayaAutocomplete** will parse the official Maya documentation to generate a new `__init__.py`.  
 Some doc versions can be downloaded during runtime, but you will be asked to use an already downloaded one.  
 
-All is done using vanilla python.<br /><br />
-
+All is done using vanilla python.
 
 ##Usage
 Some auto-completes for the Maya major versions are ready to be downloaded and configured into your IDE.
