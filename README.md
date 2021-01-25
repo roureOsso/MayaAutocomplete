@@ -9,6 +9,7 @@ Some doc versions can be downloaded during runtime, but you will be asked to use
 
 All is done using vanilla python.<br /><br />
 
+
 ##Usage
 Some auto-completes for the Maya major versions are ready to be downloaded and configured into your IDE.
 
