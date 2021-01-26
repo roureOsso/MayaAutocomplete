@@ -1,5 +1,5 @@
 # MayaAutocomplete
-**MayaAutocomplete** will provide you with a properly built auto-complete, to help you while coding inside Maya.
+**MayaAutocomplete** will provide you with a properly built auto-complete to help you while coding inside Maya. These one will suggest the available mayaCommands and the available arguments for the command being used.
 
 You can download an **"AutoComplete"** already _buit_ for you or build your own.
 
