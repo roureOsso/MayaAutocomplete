@@ -1,7 +1,12 @@
 # MayaAutocomplete
-**MayaAutocomplete** will provide you with a properly built auto-complete to help you while coding inside Maya. These one will suggest the available mayaCommands and the available arguments for the command being used.
+**MayaAutocomplete** will provide you with a properly built auto-complete to help you while coding inside Maya. These one will suggest the available commands and the available arguments for the command being used.
 
-You can download an **"AutoComplete"** already _buit_ for you or build your own.
+You can download an **"AutoComplete"** already _buit_ for you or build your own with auto-complete generator.
+
+- [x] Auto complete generator for Maya Commands
+- [ ] Auto complete generator for PyMel Commands
+- [ ] Auto complete generator for MayaApi (The default provided should be good enough)
+- [x] **autoComplete** _download ready_ with the mayaCommands auto-completion added.
 
 ## What does MayaAutocomplete?
 **MayaAutocomplete** will parse the official Maya documentation to generate a new `__init__.py`.  
