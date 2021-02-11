@@ -1,5 +1,0 @@
-registeredFuncs = set()
-
-customInstances = {}
-
-
