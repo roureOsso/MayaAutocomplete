@@ -1,3 +1,4 @@
+
 # MayaAutocomplete
 **MayaAutocomplete** will provide you with a properly built auto-complete to help you while coding inside Maya. These one will suggest the available commands and the available arguments for the command being used.
 
@@ -6,7 +7,9 @@ You can download an **"AutoComplete"** already _buit_ for you or build your own 
 - [x] Auto complete generator for Maya Commands
 - [ ] Auto complete generator for PyMel Commands
 - [ ] Auto complete generator for MayaApi (The default provided should be good enough)
-- [x] **autoComplete** _download ready_ with the mayaCommands auto-completion added.
+- [x] **autoComplete** _download ready_ with the mayaCommands auto-completion added.<br /><br />
+
+Thx to [Enrique Velasco](https://github.com/enriquevelmai) who told me the original idea.
 
 ## What does MayaAutocomplete?
 **MayaAutocomplete** will parse the official Maya documentation to generate a new `__init__.py`.  
@@ -41,27 +44,8 @@ What to do with an autoCompelte `__init__.py` file:
 
 | Maya Version | Availability
 |:----------|:-----
-| 2020.4 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2020.3 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2020.2 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2020.1 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
 | 2020 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2020py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2019.3 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2019.2 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2019.1 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
 | 2019 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2019py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2018.7 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
-| 2018.6 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
-| 2018.5 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
-| 2018.4 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2018.3 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2018.2 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2018.1 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
 | 2018 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2018py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2017.5 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
-| 2017.4 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
-| 2017.3 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
-| 2017.2 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
-| 2017.1 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-red)]()
 | 2017 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
 | 2016 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
