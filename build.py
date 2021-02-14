@@ -12,10 +12,12 @@ from functools import partial
 # Make this code compatible with python2 and python3
 if sys.version_info >= (3, 0):
     from urllib.request import urlretrieve
+
     u_input = input
 
 else:
     from urllib import urlretrieve
+
     u_input = raw_input
 
 TYPES_TABLE = {'bool()': ['boolean'],
@@ -67,19 +69,46 @@ class MayaDocParser(object):
         For the custom build you will be asked to provide the Maya Documentation to parse.
         :param custom_build: bool //
         """
-        self.__get_maya_version()
         self.__get_build_path()
 
         if custom_build:
             self._custom_setup()
+            print('"__init__.py" file for the auto complete DONE!! Find it where you said :D')
+
+            display_more_info = u_input('Need more info on how to use this __init__ file? Y/N:')
+            if display_more_info == 'Y':
+                print("""
+    1. Download the corresponding maya devkit.
+    2. Copy the __init__.py inside the marked directory:
+        devkitBase
+                  |
+                  devkit
+                        |
+                        other
+                             |
+                             pymel
+                                  |
+                                  extras
+                                        |
+                                        completion
+                                                  |
+                                                  py    <- Set this folder when setting the autoComplete in your IDE
+                                                    |
+                                                    maya
+                                                        |
+                                                        cmds  <- Replace the __init__.py here
+                """)
 
         else:
+            self.__get_maya_version()
             self._auto_setup()
             print('Auto complete DONE!! Find it where you said :D')
 
+        print('INFO: It is recommended to open the __init__ file and reformat the code\n')
+
     def _auto_setup(self):
         """
-        Will downlad everything is needed, parse the new documentation and release a new python autoComplete
+        Will download everything is needed, parse the new documentation and release a new python autoComplete
         """
 
         # Download the Maya documentation
@@ -96,6 +125,7 @@ class MayaDocParser(object):
         ac_path = path.join(self._build_path, 'py' + self._maya_version)
         zip_devkit = zipfile.ZipFile(dev_kit_temp_zip)
 
+        # Copy the needed files to the specified dir
         for dev_file in zip_devkit.namelist():
             if dev_file.startswith('devkitBase/devkit/other/pymel/extras/completion/py'):
                 zip_devkit.extract(dev_file, self._build_path)
@@ -106,6 +136,7 @@ class MayaDocParser(object):
 
         shutil.rmtree(path.join(self._build_path, 'devkitBase'))
 
+        # Parse and generate the new __init__ file
         commands_files = [
             f for f in zip_doc.namelist() if path.dirname(f) == 'CommandsPython' and f.endswith('.html')]
 
@@ -125,7 +156,30 @@ class MayaDocParser(object):
                 command_hdl.close()
 
     def _custom_setup(self):
-        print('Custom build not implemented yet')
+        """
+        Autocomplete based on the user autocomplete only the __init__ file will be generated.
+        """
+
+        print('Download your desired Maya documentation and specify the path to the "CommandsPython" folder')
+        commands_dir = u_input('Path:')
+
+        if not path.exists(commands_dir):
+            self._custom_setup()
+            print('ERROR: No such file or directory, try again\n')
+            return
+
+        with open(path.join(self._build_path, '__init__.py'), 'w+') as commands_file:
+            for command_file in os.listdir(commands_dir):
+                if not command_file.endswith('.html'):
+                    continue
+
+                command_name = path.basename(command_file).replace('.html', '')
+                with open(path.join(commands_dir, command_file)) as command_hdl:
+                    command_content = command_hdl.read()
+                    command_def = self.__parse_documentation(command=command_name, command_content=command_content)
+
+                    if command_def:
+                        commands_file.write(command_def)
 
     @staticmethod
     def __retrieve_progress(block_count, block_size, total_size, prefix):
@@ -176,7 +230,7 @@ class MayaDocParser(object):
             self.__get_build_path()
 
         if 'devkitBase' in os.listdir(self._build_path):
-            print('ERROR: "devkitBase" folder found in the given dir')
+            print('ERROR: "devkitBase" folder found in the given dir\n')
             self.__get_build_path()
 
     @staticmethod
