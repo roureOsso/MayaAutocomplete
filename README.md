@@ -2,18 +2,20 @@
 # MayaAutocomplete
 **MayaAutocomplete** will provide you with a properly built auto-complete to help you while coding inside Maya. These one will suggest the available commands and the available arguments for the command being used.
 
-You can download an **"AutoComplete"** already _buit_ for you or build your own with auto-complete generator.
+You can download an **"AutoComplete"** already _built_ for you or build your own with auto-complete generator.
 
 - [x] Auto complete generator for Maya Commands
 - [ ] Auto complete generator for PyMel Commands
 - [ ] Auto complete generator for MayaApi (The default provided should be good enough)
-- [x] **autoComplete** _download ready_ with the mayaCommands auto-completion added.<br /><br />
+- [x] \_\_init__.py _download ready_ to be added to your **autoComplete** for the mayaCommands.<br /><br />
 
 Thx to [Enrique Velasco](https://github.com/enriquevelmai) who told me the original idea.
 
 ## What does MayaAutocomplete?
 **MayaAutocomplete** will parse the official Maya documentation to generate a new `__init__.py`.  
-Some doc versions can be downloaded during runtime, but you will be asked to use an already downloaded one.  
+
+The custom build will ask you to download/provide the desired Maya documentation to parse.
+The default build will download whatever is needed and the entire **autoComplete** will be generated, not only the \_\_init__file 
 
 All is done using vanilla python.<br /><br />
 
@@ -22,10 +24,10 @@ All is done using vanilla python.<br /><br />
 Some auto-completes for the Maya major versions are ready to be downloaded and configured into your IDE.
 
 Build your own autocomplete:
-1. Download the latest release or simply download the **"built.py"**.
+1. Download the already \_\_init__.py for your major version or simply download the **"built.py"**.
 2. Run this file in your system console, use any python version above 2.7 or the maya interpreter it self.
 3. Only the **"DocDownload"** _ready_ can be downloaded and built during run-time.
-4. If your version is not ready, download the documentation from the [official site](https://knowledge.autodesk.com/support/maya/troubleshooting/caas/downloads/content/download-install-maya-product-help.html) and unzip it to a new folder.
+4. If your version is not ready, download the documentation from the [official site](https://knowledge.autodesk.com/support/maya/troubleshooting/caas/downloads/content/download-install-maya-product-help.html) and use the custom build option.
 5. Follow the instructions. At the end you can ask for more detailed information on how to proceed with the new file.
 6. A new `__init__.py` file will be created or overridden.<br /><br />
 
