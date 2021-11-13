@@ -30,6 +30,7 @@ TYPES_TABLE = {'bool()': ['boolean'],
 # https://knowledge.autodesk.com/support/maya/troubleshooting/caas/downloads/content/download-install-maya-product-help.html
 DOWNLOAD_SOURCES = {
     "MayaHelp": {
+        "2022": "https://download.autodesk.com/us/support/maya_user_guide/2022.2/autodesk_maya_user_guide_2022.2_htm_ade_2.1_en.zip",
         "2020": "https://download.autodesk.com/us/support/maya_user_guide/2020/autodesk-maya-user-guide-2020.htm-ade-2.1.en.zip",
         "2019": "https://download.autodesk.com/us/support/maya_2019/maya-2019-user-guide_enu_offline.zip",
         "2018": "https://download.autodesk.com/us/support/files/maya_help_2018/MayaHelp2018_enu.zip",
@@ -38,6 +39,7 @@ DOWNLOAD_SOURCES = {
     },
     "DevKit": {
         "Windows": {
+            "2022": "https://autodesk-adn-transfer.s3-us-west-2.amazonaws.com/ADN+Extranet/M%26E/Maya/devkit+2022/Autodesk_Maya_2022_2_Update_DEVKIT_Windows.zip",
             "2020": "https://autodesk-adn-transfer.s3.us-west-2.amazonaws.com/ADN%20Extranet/M%26E/Maya/devkit%202020/Autodesk_Maya_2020_DEVKIT_Windows_Hotfix_1.zip",
             "2019": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2019/Autodesk_Maya_2019_DEVKIT_Windows.zip",
             "2018": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2018/Maya2018-DEVKIT_Windows.zip",
@@ -45,6 +47,7 @@ DOWNLOAD_SOURCES = {
             "2016": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2016/Maya2016_DEVKIT_Windows.zip"
         },
         "Linux": {
+            "2022": "https://autodesk-adn-transfer.s3-us-west-2.amazonaws.com/ADN+Extranet/M%26E/Maya/devkit+2022/Autodesk_Maya_2022_2_Update_DEVKIT_Linux.tgz",
             "2020": "https://autodesk-adn-transfer.s3.us-west-2.amazonaws.com/ADN%20Extranet/M%26E/Maya/devkit%202020/Autodesk_Maya_2020_DEVKIT_Linux_Hotfix_1.tgz",
             "2019": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2019/Autodesk_Maya_2019_DEVKIT_Linux.tgz",
             "2018": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2018/Maya2018_DEVKIT_Linux.tgz",
@@ -76,7 +79,7 @@ class MayaDocParser(object):
             print('"__init__.py" file for the auto complete DONE!! Find it where you said :D')
 
             display_more_info = u_input('Need more info on how to use this __init__ file? Y/N:')
-            if display_more_info == 'Y':
+            if display_more_info.upper() == 'Y':
                 print("""
     1. Download the corresponding maya devkit.
     2. Copy the __init__.py inside the marked directory:
@@ -125,14 +128,19 @@ class MayaDocParser(object):
         ac_path = path.join(self._build_path, 'py' + self._maya_version)
         zip_devkit = zipfile.ZipFile(dev_kit_temp_zip)
 
+        # Maya 2022 introduced a new organization
+        py_devkit_path = r'devkitBase\devkit\other\pymel\extras\completion\py'
+        if int(self._maya_version) > 2020:
+            py_devkit_path = r'devkitBase\devkit\other\Python27\pymel\extras\completion\py'
+
+        py_devkit_path = os.path.normpath(py_devkit_path)
+
         # Copy the needed files to the specified dir
         for dev_file in zip_devkit.namelist():
-            if dev_file.startswith('devkitBase/devkit/other/pymel/extras/completion/py'):
+            if dev_file.startswith(py_devkit_path.replace(os.sep, '/')):
                 zip_devkit.extract(dev_file, self._build_path)
 
-        shutil.move(
-            path.join(self._build_path, 'devkitBase', 'devkit', 'other', 'pymel', 'extras', 'completion', 'py'),
-            ac_path)
+        shutil.move(path.join(self._build_path, *py_devkit_path.split(os.sep)), ac_path)
 
         shutil.rmtree(path.join(self._build_path, 'devkitBase'))
 
@@ -293,7 +301,7 @@ if __name__ == "__main__":
 
     build_type = u_input('Run custom build? Maya Help and Devkit will be requested. Y/N:')
 
-    if build_type in ['Y', 'N']:
+    if build_type.upper() in ['Y', 'N']:
         py_parser.build(custom_build=True if build_type == 'Y' else False)
 
     else:
