@@ -46,7 +46,7 @@ What to do with an autoCompelte `__init__.py` file:
 
 | Maya Version | Availability
 |:----------|:-----
-| 2022 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2020py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
+| 2022 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2022py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
 | 2020 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2020py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
 | 2019 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2019py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
 | 2018 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2018py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
