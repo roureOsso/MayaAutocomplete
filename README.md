@@ -1,11 +1,11 @@
 
 ## What is MayaAutocomplete?
-**MayaAutocomplete** is simple python script that will parse the official Maya documentation to generate a new `__init__.pyi` for you to use as autocomplete.<br />
-- You should not need to build your own autoComplete therefore I will not add details about how to use the script. If you know what you are looking at I hope it is self-explanatory enough. Tested for windows and py3.x
+**MayaAutocomplete** is simple python script that will parse the official Maya documentation to generate a new `__init__.pyi` (Maya stub files) for you to use as autocomplete.<br />
+- You should not need to build your own files therefore I will not add details about how to use the script. If you know what you are looking at I hope it is self-explanatory enough. Tested for windows and py3.x
 
-**MayaAutocomplete** is also a library with already generated autoCompletes for the different Maya major versions. You don't need to run any python script if you do not want or need to.<br />
+**MayaAutocomplete** is also a library with already generated autoCompletes (cmds stub files) for the different Maya major versions. You don't need to run any python script if you do not want or need to.<br />
 
-Thx to [Enrique Velasco](https://github.com/enriquevelmai) who originally told me about the idea.
+Thanks to [Enrique Velasco](https://github.com/enriquevelmai) who originally told me about the ideaon how to do that.
 
 
 ## Auto Complete Usage  
