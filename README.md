@@ -1,52 +1,24 @@
 
-# MayaAutocomplete
-**MayaAutocomplete** will provide you with a properly built auto-complete to help you while coding inside Maya. These one will suggest the available commands and the available arguments for the command being used.
+## What is MayaAutocomplete?
+**MayaAutocomplete** is simple python script that will parse the official Maya documentation to generate a new `__init__.pyi` for you to use as autocomplete.<br />
+- You should not need to build your own autoComplete therefore I will not add details about how to use the script. If you know what you are looking at I hope it is self-explanatory enough. Tested for windows and py3.x
 
-You can download an **"AutoComplete"** already _buit_ for you or build your own with auto-complete generator.
+**MayaAutocomplete** is also a library with already generated autoCompletes for the different Maya major versions. You don't need to run any python script if you do not want or need to.<br />
 
-- [x] Auto complete generator for Maya Commands
-- [ ] Auto complete generator for PyMel Commands
-- [ ] Auto complete generator for MayaApi (The default provided should be good enough)
-- [x] **autoComplete** _download ready_ with the mayaCommands auto-completion added.<br /><br />
-
-Thx to [Enrique Velasco](https://github.com/enriquevelmai) who told me the original idea.
-
-## What does MayaAutocomplete?
-**MayaAutocomplete** will parse the official Maya documentation to generate a new `__init__.py`.  
-Some doc versions can be downloaded during runtime, but you will be asked to use an already downloaded one.  
-
-All is done using vanilla python.<br /><br />
+Thx to [Enrique Velasco](https://github.com/enriquevelmai) who originally told me about the idea.
 
 
-## Usage  
-Some auto-completes for the Maya major versions are ready to be downloaded and configured into your IDE.
+## Auto Complete Usage  
+From the [releases tab](https://github.com/roureOsso/MayaAutocomplete/releases) is this page you will be able to download you desired `autoCompleteMaya{version}.zip`<br />
 
-Build your own autocomplete:
-1. Download the latest release or simply download the **"built.py"**.
-2. Run this file in your system console, use any python version above 2.7 or the maya interpreter it self.
-3. Only the **"DocDownload"** _ready_ can be downloaded and built during run-time.
-4. If your version is not ready, download the documentation from the [official site](https://knowledge.autodesk.com/support/maya/troubleshooting/caas/downloads/content/download-install-maya-product-help.html) and unzip it to a new folder.
-5. Follow the instructions. At the end you can ask for more detailed information on how to proceed with the new file.
-6. A new `__init__.py` file will be created or overridden.<br /><br />
+Once unzipped you should see the following files/dirs:<br />
+<pre>
+autoCompleteMaya{version}
+|__ maya-stubs
+    |__ __init__.pyi
+    |__ cmds
+        |__ __init__.pyi
+</pre>
 
-
-What to do with an autoCompelte `__init__.py` file:
-1. Download the corresponding [maya devkit](https://www.autodesk.com/developer-network/platform-technologies/maya).
-2. You can delete everything except this folder: **\devkitBase\devkit\other\pymel\extras\completion\py**
-3. Open **py\maya\cmds**
-4. Replace the `__init__.py` file located here.<br /><br />
-
-
-#### Status
-
-[![PythonCompatibilities](https://img.shields.io/badge/python-2.7%20%7C%203.x-blue)](https://www.python.org/downloads/)
-
-
-| Maya Version | Availability
-|:----------|:-----
-| 2022 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2020py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2020 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2020py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2019 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2019py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2018 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-brightgreen)](autoCompleteVersions/2018py) [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2017 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
-| 2016 | [![AC status](https://img.shields.io/badge/AutoComplete-Built-red)]() [![AC status](https://img.shields.io/badge/DocDownload-Ready-brightgreen)]()
+This files configuration follow [PEP 561](https://peps.python.org/pep-0561/) for stubs. Therefore, now you can add `autoCompleteMaya{version}` to your interpreter python paths without shadowing the "real" Maya directories.<br />
+Go to the [releases tab](https://github.com/roureOsso/MayaAutocomplete/releases) for a video example on how to do that with pycharm.

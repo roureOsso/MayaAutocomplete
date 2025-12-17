@@ -1,252 +1,123 @@
 # -*- coding: utf-8 -*-
-
+import io
 import sys
 import os
 import os.path as path
-import platform
 import re
 import zipfile
-import shutil
 from functools import partial
 
-# Make this code compatible with python2 and python3
-if sys.version_info >= (3, 0):
-    from urllib.request import urlretrieve
+from urllib.request import urlretrieve
 
-    u_input = input
-
-else:
-    from urllib import urlretrieve
-
-    u_input = raw_input
-
-TYPES_TABLE = {'bool()': ['boolean'],
-               'int()': ['uint', 'int', 'int64'],
-               'float()': ['linear', 'float', 'angle', 'time'],
-               'str()': ['string', 'name', 'script'],
-               'tuple()': ['floatrange', 'timerange']}
+TYPES_TABLE = {"bool()": ["boolean"],
+               "int()": ["uint", "int", "int64"],
+               "float()": ["linear", "float", "angle", "time"],
+               "str()": ["string", "name", "script"],
+               "tuple()": ["floatrange", "timerange"]}
 
 # Doc download page
 # https://knowledge.autodesk.com/support/maya/troubleshooting/caas/downloads/content/download-install-maya-product-help.html
+# Devkit download page
+# https://aps.autodesk.com/developer/overview/maya
+
 DOWNLOAD_SOURCES = {
     "MayaHelp": {
+        "2023": "https://download.autodesk.com/akn/2023/maya/autodesk-maya-user-guide-2023.3-en.zip",
         "2022": "https://download.autodesk.com/us/support/maya_user_guide/2022.2/autodesk_maya_user_guide_2022.2_htm_ade_2.1_en.zip",
         "2020": "https://download.autodesk.com/us/support/maya_user_guide/2020/autodesk-maya-user-guide-2020.htm-ade-2.1.en.zip",
         "2019": "https://download.autodesk.com/us/support/maya_2019/maya-2019-user-guide_enu_offline.zip",
         "2018": "https://download.autodesk.com/us/support/files/maya_help_2018/MayaHelp2018_enu.zip",
-        "2017": "https://download.autodesk.com/us/support/files/maya_help_enu_2017/MayaHelp2017_enu.zip",
-        "2016": "https://download.autodesk.com/us/support/files/maya_2016/MayaHelp2016_enu.zip"
     },
-    "DevKit": {
-        "Windows": {
-            "2022": "https://autodesk-adn-transfer.s3-us-west-2.amazonaws.com/ADN+Extranet/M%26E/Maya/devkit+2022/Autodesk_Maya_2022_2_Update_DEVKIT_Windows.zip",
-            "2020": "https://autodesk-adn-transfer.s3.us-west-2.amazonaws.com/ADN%20Extranet/M%26E/Maya/devkit%202020/Autodesk_Maya_2020_DEVKIT_Windows_Hotfix_1.zip",
-            "2019": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2019/Autodesk_Maya_2019_DEVKIT_Windows.zip",
-            "2018": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2018/Maya2018-DEVKIT_Windows.zip",
-            "2017": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2017/Maya2017_DEVKIT_Windows.zip",
-            "2016": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2016/Maya2016_DEVKIT_Windows.zip"
-        },
-        "Linux": {
-            "2022": "https://autodesk-adn-transfer.s3-us-west-2.amazonaws.com/ADN+Extranet/M%26E/Maya/devkit+2022/Autodesk_Maya_2022_2_Update_DEVKIT_Linux.tgz",
-            "2020": "https://autodesk-adn-transfer.s3.us-west-2.amazonaws.com/ADN%20Extranet/M%26E/Maya/devkit%202020/Autodesk_Maya_2020_DEVKIT_Linux_Hotfix_1.tgz",
-            "2019": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2019/Autodesk_Maya_2019_DEVKIT_Linux.tgz",
-            "2018": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2018/Maya2018_DEVKIT_Linux.tgz",
-            "2017": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2017/Maya2017_DEVKIT_Linux.tgz",
-            "2016": "https://s3-us-west-2.amazonaws.com/autodesk-adn-transfer/ADN+Extranet/M%26E/Maya/devkit+2016/Maya2016_DEVKIT_Linux.zip"
-        }
+
+    "DevKit": {  # There is no point making difference between windows and linux when it comes to maya commands
+        "2026": "https://autodesk-adn-transfer.s3.us-west-2.amazonaws.com/ADN+Extranet/M%26E/Maya/devkit+2026/Autodesk_Maya_2026_3_Update_DEVKIT_Windows.zip",
+        "2025": "https://autodesk-adn-transfer.s3.us-west-2.amazonaws.com/ADN+Extranet/M%26E/Maya/devkit+2025/Autodesk_Maya_2025_3_Update_DEVKIT_Windows.zip",
+        "2024": "https://autodesk-adn-transfer.s3-us-west-2.amazonaws.com/ADN+Extranet/M%26E/Maya/devkit+2024/Autodesk_Maya_2024_2_Update_DEVKIT_Windows.zip",
     }
 }
 
 
-class MayaDocParser(object):
+class MayaDocParser:
 
     def __init__(self):
-        super(MayaDocParser, self).__init__()
+        self._maya_version = ""
+        self._build_path = ""
 
-        self._maya_version = None
-        self._build_path = None
-
-    def build(self, custom_build=False):
-        """
-        Will create the new autoComplete, you can choose between an automatic setup and a custom one.
-        For the custom build you will be asked to provide the Maya Documentation to parse.
-        :param custom_build: bool //
-        """
+    def build(self):
         self.__get_build_path()
+        self.__get_maya_version()
 
-        if custom_build:
-            self._custom_setup()
-            print('"__init__.py" file for the auto complete DONE!! Find it where you said :D')
+        # Download the Maya documentation (might be in the MayaHelp or devkit depending on the version)
+        source = "MayaHelp" if self._maya_version in DOWNLOAD_SOURCES["MayaHelp"] else "DevKit"
+        doc_download_path = DOWNLOAD_SOURCES[source][self._maya_version]
 
-            display_more_info = u_input('Need more info on how to use this __init__ file? Y/N:')
-            if display_more_info.upper() == 'Y':
-                print("""
-    1. Download the corresponding maya devkit.
-    2. Copy the __init__.py inside the marked directory:
-        devkitBase
-                  |
-                  devkit
-                        |
-                        other
-                             |
-                             pymel
-                                  |
-                                  extras
-                                        |
-                                        completion
-                                                  |
-                                                  py    <- Set this folder when setting the autoComplete in your IDE
-                                                    |
-                                                    maya
-                                                        |
-                                                        cmds  <- Replace the __init__.py here
-                """)
-
-        else:
-            self.__get_maya_version()
-            self._auto_setup()
-            print('Auto complete DONE!! Find it where you said :D')
-
-        print('INFO: It is recommended to open the __init__ file and reformat the code\n')
-
-    def _auto_setup(self):
-        """
-        Will download everything is needed, parse the new documentation and release a new python autoComplete
-        """
-
-        # Download the Maya documentation
-        doc_download_path = DOWNLOAD_SOURCES['MayaHelp'][self._maya_version]
         doc_temp_zip = urlretrieve(
-            url=doc_download_path, reporthook=partial(self.__retrieve_progress, prefix='Doc download'))[0]
+            url=doc_download_path, reporthook=partial(self._retrieve_progress, prefix="Doc download"))[0]
         zip_doc = zipfile.ZipFile(doc_temp_zip)
 
-        # Download the MayaDevkit
-        dev_kit_download_path = DOWNLOAD_SOURCES['DevKit'][platform.system()][self._maya_version]
-        dev_kit_temp_zip = urlretrieve(
-            url=dev_kit_download_path, reporthook=partial(self.__retrieve_progress, prefix='devKit download'))[0]
+        # Docs inside the devKit for the latest Maya version ar inside a nested zip
+        if source == "DevKit":
+            nested_zip = [f for f in zip_doc.namelist() if f.endswith("docs.zip")][0]
+            nested_zip_data = io.BytesIO(zip_doc.read(nested_zip))
+            zip_doc = zipfile.ZipFile(nested_zip_data)
 
-        ac_path = path.join(self._build_path, 'py' + self._maya_version)
-        zip_devkit = zipfile.ZipFile(dev_kit_temp_zip)
+        commands_files = [f for f in zip_doc.namelist() if path.dirname(f) == "CommandsPython" and f.endswith(".html")]
 
-        # Maya 2022 introduced a new organization
-        py_devkit_path = r'devkitBase\devkit\other\pymel\extras\completion\py'
-        if int(self._maya_version) > 2020:
-            py_devkit_path = r'devkitBase\devkit\other\Python27\pymel\extras\completion\py'
+        # region -> Create directories for the autocomplete, parse the docs and write them down.
+        maya_stubs_path = path.join(self._build_path, "autoCompleteMaya" + self._maya_version, "maya-stubs")
+        ac_path = path.join(maya_stubs_path, "cmds")
+        os.makedirs(ac_path)
 
-        py_devkit_path = os.path.normpath(py_devkit_path)
+        files_to_create = [path.join(maya_stubs_path, "__init__.pyi"), path.join(ac_path, "__init__.pyi")]
 
-        # Copy the needed files to the specified dir
-        for dev_file in zip_devkit.namelist():
-            if dev_file.startswith(py_devkit_path.replace(os.sep, '/')):
-                zip_devkit.extract(dev_file, self._build_path)
+        for file_path in files_to_create:
+            with open(file_path, "w"):
+                pass
 
-        shutil.move(path.join(self._build_path, *py_devkit_path.split(os.sep)), ac_path)
-
-        shutil.rmtree(path.join(self._build_path, 'devkitBase'))
-
-        # Parse and generate the new __init__ file
-        commands_files = [
-            f for f in zip_doc.namelist() if path.dirname(f) == 'CommandsPython' and f.endswith('.html')]
-
-        with open(path.join(ac_path, 'maya', 'cmds', '__init__.py'), 'w+') as commands_file:
+        with open(path.join(ac_path, "__init__.pyi"), "w+") as commands_file:
             for i, command_file in enumerate(commands_files):
-                self.__retrieve_progress(
-                    block_count=i + 1, block_size=1, total_size=len(commands_files), prefix='Autocomplete build')
+                self._retrieve_progress(
+                    block_count=i + 1, block_size=1, total_size=len(commands_files), prefix="Autocomplete build")
 
                 command_hdl = zip_doc.open(command_file)
                 command_content = command_hdl.read()
-                command_name = path.basename(command_file).replace('.html', '')
-                command_def = self.__parse_documentation(command=command_name, command_content=command_content)
+                command_name = path.basename(command_file).replace(".html", "")
+                command_def = self._parse_documentation(command=command_name, command_content=command_content)
 
                 if command_def:
                     commands_file.write(command_def)
 
                 command_hdl.close()
+        # endregion
 
-    def _custom_setup(self):
-        """
-        Autocomplete based on the user autocomplete only the __init__ file will be generated.
-        """
+        print("Auto complete ready! \n"
+              "It is recommended to open the __init__ file and auto reformat the code for easier future reading")
 
-        print('Download your desired Maya documentation and specify the path to the "CommandsPython" folder')
-        commands_dir = u_input('Path:')
+    def __get_build_path(self):
+        print("A new autoComplete will be generated, please, indicate where it should be located")
+        self._build_path = input("AC path:")
 
-        if not path.exists(commands_dir):
-            self._custom_setup()
-            print('ERROR: No such file or directory, try again\n')
-            return
-
-        with open(path.join(self._build_path, '__init__.py'), 'w+') as commands_file:
-            for command_file in os.listdir(commands_dir):
-                if not command_file.endswith('.html'):
-                    continue
-
-                command_name = path.basename(command_file).replace('.html', '')
-                with open(path.join(commands_dir, command_file)) as command_hdl:
-                    command_content = command_hdl.read()
-                    command_def = self.__parse_documentation(command=command_name, command_content=command_content)
-
-                    if command_def:
-                        commands_file.write(command_def)
-
-    @staticmethod
-    def __retrieve_progress(block_count, block_size, total_size, prefix):
-        """
-        Create and update a progress bar within an iteration process.
-        :param block_count: int // current block being downloaded
-        :param block_size: int // size of the blocks being downloaded (bytes)
-        :param total_size: str // total size to be downloaded (bytes)
-        :param prefix: str // bit added before the the loading bar
-        """
-        max_iteration = round(total_size / float(block_size))
-        percents = "{:.1f}".format(100 * (block_count / float(max_iteration)))
-        filled_length = int(round(75 * block_count / float(max_iteration)))
-        bar = '█' * filled_length + '▯' * (75 - filled_length)
-
-        sys.stdout.write('\r{}: |{}| {}%'.format(prefix, bar, percents)),
-
-        if block_count == max_iteration:
-            sys.stdout.write('\n')
-        # Make sure that the string is not being buffered
-        sys.stdout.flush()
+        if not path.exists(self._build_path):
+            print("ERROR: No such file or directory, try again\n")
+            self.__get_build_path()
 
     def __get_maya_version(self):
-        """
-        Get the maya documentation version to download
-        """
 
-        self._maya_version = u_input('Maya version:')
-
-        if self._maya_version not in DOWNLOAD_SOURCES['MayaHelp'].keys():
-            available_versions = list(DOWNLOAD_SOURCES['MayaHelp'].keys())
-            available_versions.sort()
-            print('Documentation not listed for version - {} -\n'
-                  'Available major versions -> {}\n'
-                  'NOTE: For other options choose the custom build\n'.format(self._maya_version, available_versions))
+        self._maya_version = input("Maya version:")
+        versions = list(DOWNLOAD_SOURCES["MayaHelp"].keys()) + list(DOWNLOAD_SOURCES["DevKit"].keys())
+        if self._maya_version not in versions:
+            versions.sort()
+            print(f"Documentation not listed for version - {self._maya_version} -\n"
+                  f"Available major versions -> {versions}\n")
 
             self.__get_maya_version()
 
-    def __get_build_path(self):
-        """
-        A new pyAutocomplete will be generated, here I'm getting the path where it should be stored.
-        """
-        print('A new autoComplete will be generated, please, indicate where it should be located')
-        self._build_path = u_input('AC path:')
-
-        if not path.exists(self._build_path):
-            print('ERROR: No such file or directory, try again\n')
-            self.__get_build_path()
-
-        if 'devkitBase' in os.listdir(self._build_path):
-            print('ERROR: "devkitBase" folder found in the given dir\n')
-            self.__get_build_path()
-
     @staticmethod
-    def __parse_documentation(command, command_content):
+    def _parse_documentation(command, command_content):
 
         # Force string type to be python 3.x compatible
         command_content = str(command_content)
-        c_index = command_content.find(command + '(')
+        c_index = command_content.find(command + "(")
 
         # If any command si described continue
         if c_index == -1:
@@ -255,22 +126,22 @@ class MayaDocParser(object):
         start = c_index + len(command) + 1
 
         # Each command has a synopsis with the command being called and all the flag have their type
-        synopsis_str = command_content[start:command_content.find(')', start)]
+        synopsis_str = command_content[start:command_content.find(")", start)]
 
         arguments_types = list()
-        for arguments in re.findall('\[<(.*?)>]', synopsis_str):
+        for arguments in re.findall("\[<(.*?)>]", synopsis_str):
             # Get all occurrences between ">" and "<", these will be the flags and its types
-            arg_and_type = re.findall('>(.*?)<', arguments)[::2]
+            arg_and_type = re.findall(">(.*?)<", arguments)[::2]
             if not arg_and_type:
                 continue
 
             arg = arg_and_type[0]
-            short_arg = re.findall('<code><b>{}</b>\(<b>(.*?)</b>\)'.format(arg), command_content)[0]
+            short_arg = re.findall("<code><b>{}</b>\(<b>(.*?)</b>\)".format(arg), command_content)[0]
             arg_type = None
 
             # If an argument has '[' or ']' in it, it is a list type
-            if '[' in arg_and_type[1] and ']' in arg_and_type[1]:
-                arg_type = 'list'
+            if "[" in arg_and_type[1] and "]" in arg_and_type[1]:
+                arg_type = "list"
 
             # If it is not a list, find the correct type in the types table
             else:
@@ -280,29 +151,41 @@ class MayaDocParser(object):
                         break
 
             if not arg_and_type:
-                raise RuntimeError(
-                    'arg type is not a list and is not defined in the table, contact who did this')
+                raise RuntimeError("arg type is not a list and is not defined in the table, contact who did this")
 
-            arguments_types.append('='.join([arg, arg_type]))
+            arguments_types.append("=".join([arg, arg_type]))
 
             if short_arg and not short_arg == arg:
-                arguments_types.append('='.join([short_arg, arg_type]))
+                arguments_types.append("=".join([short_arg, arg_type]))
 
-        arguments_types.extend(['*args', '**kwargs'])
+        arguments_types.extend(["*args", "**kwargs"])
 
-        command_def = "def {}({}):\n    pass\n\n".format(command, ', '.join(arguments_types))
+        command_def = f"def {command}({', '.join(arguments_types)}):\n    pass\n\n"
 
         return command_def
 
+    @staticmethod
+    def _retrieve_progress(block_count, block_size, total_size, prefix):
+        """
+        Create and update a progress bar within an iteration process.
+        :param block_count: int // current block being downloaded
+        :param block_size: int // size of the blocks being downloaded (bytes)
+        :param total_size: str // total size to be downloaded (bytes)
+        :param prefix: str // bit added before the loading bar
+        """
+        max_iteration = round(total_size / float(block_size))
+        percents = "{:.1f}".format(100 * (block_count / float(max_iteration)))
+        filled_length = int(round(75 * block_count / float(max_iteration)))
+        bar = "█" * filled_length + "▯" * (75 - filled_length)
+
+        sys.stdout.write(f"\r{prefix}: |{bar}| {percents}%"),
+
+        if block_count == max_iteration:
+            sys.stdout.write("\n")
+        # Make sure that the string is not being buffered
+        sys.stdout.flush()
+
 
 if __name__ == "__main__":
-
     py_parser = MayaDocParser()
-
-    build_type = u_input('Run custom build? Maya Help and Devkit will be requested. Y/N:')
-
-    if build_type.upper() in ['Y', 'N']:
-        py_parser.build(custom_build=True if build_type == 'Y' else False)
-
-    else:
-        raise ValueError('Please set Y or N')
+    py_parser.build()
